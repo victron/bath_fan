@@ -1,0 +1,1 @@
+bool heaterLogic2(float currentTemp, float targetTemp, float hysteresis, bool previousState);
