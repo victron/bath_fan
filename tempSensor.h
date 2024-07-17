@@ -1,1 +1,0 @@
-float calcTemp(int ThermistorPin);
