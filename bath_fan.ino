@@ -48,7 +48,7 @@ void setup()
         delay(500); // waiting for the connection
     }
     Serial.println();
-    Serial.println("Connected to the network");
+    Serial.println("Connected to the network:::::");
 
     // Логування розміру флеш-пам'яті
     uint32_t flashSize = ESP.getFlashChipRealSize();
