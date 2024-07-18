@@ -1,10 +1,10 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include <ArduinoOTA.h>
 #include <ArduinoHA.h>
 #include <Wire.h>
 
 #include "secrets.h"
+#include "OTAHandler.h"
 
 #define SSR_PIN 14
 #define RELAY_PIN 12
@@ -34,7 +34,7 @@ void onSwitchCommand(bool state, HASwitch *sender)
 void setup()
 {
     Serial.begin(9600);
-    Serial.println("Starting...");
+    Serial.println("Booting...");
 
     byte mac[WL_MAC_ADDR_LENGTH];
     WiFi.macAddress(mac);
@@ -56,7 +56,7 @@ void setup()
 
     pinMode(SSR_PIN, OUTPUT);
     digitalWrite(SSR_PIN, LOW);
-    // rellay high level triger
+    // relay high level trigger
     pinMode(RELAY_PIN, OUTPUT);
     digitalWrite(RELAY_PIN, LOW);
 
@@ -70,11 +70,15 @@ void setup()
     mqtt.begin(BROKER_ADDR, MQTT_USERNAME, MQTT_PASSWORD);
     device.enableSharedAvailability();
     device.enableLastWill();
+
+    // Ініціалізація OTA з паролем
+    setupOTA("bath_fan", OTA_PASSWORD);
 }
 
 void loop()
 {
     mqtt.loop();
+    ArduinoOTA.handle();
 
     // You can also change the state at runtime as shown below.
     // This kind of logic can be used if you want to control your switch using a button connected to the device.
