@@ -33,7 +33,7 @@ void onSwitchCommand(bool state, HASwitch *sender)
 
 void setup()
 {
-    Serial.begin(9600);
+    Serial.begin(115200);
     Serial.println("Booting...");
 
     byte mac[WL_MAC_ADDR_LENGTH];
@@ -49,6 +49,12 @@ void setup()
     }
     Serial.println();
     Serial.println("Connected to the network");
+
+    // Логування розміру флеш-пам'яті
+    uint32_t flashSize = ESP.getFlashChipRealSize();
+    Serial.print("Flash size: ");
+    Serial.print(flashSize);
+    Serial.println(" bytes");
 
     // set device's details (optional)
     device.setName("bath_fan");
