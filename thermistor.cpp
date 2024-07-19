@@ -10,7 +10,7 @@
 const float SERIESRESISTOR = 9940.0;     // Додатковий резистор 100k
 const float THERMISTORNOMINAL = 10000.0; // Опір термістора при 25 градусах C
 const float TEMPERATURENOMINAL = 25.0;   // Температура при якій опір номінальний (25 C)
-const float ADC_MAX_VALUE = 1023.0 + 10; // корекція
+const float ADC_MAX_VALUE = 1023.0 + 5;  // корекція
 const float BCOEFFICIENT = 3950.0;       // Beta коефіцієнт термістора
 
 float getTemperature(int thermistorPin)
