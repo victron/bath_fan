@@ -30,5 +30,5 @@ float getTemperature(int thermistorPin)
     steinhart = 1.0 / steinhart;                      // Інверсія значення
     steinhart -= 273.15;                              // Перетворення в градуси Цельсія
 
-    return resistance;
+    return (float)adcValue;
 }
