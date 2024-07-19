@@ -22,6 +22,7 @@ git pull origin master
 
 # install custom libs
 arduino-cli core install home-assistant-integration
+arduino-cli lib install "Adafruit BME280 Library"
 
 # update via OTA
 git pull origin master
