@@ -2,8 +2,8 @@
 #include <ESP8266WiFi.h>
 #include <ArduinoHA.h>
 #include <Wire.h>
-// #include <Adafruit_Sensor.h>
-// #include <Adafruit_BME280.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BME280.h>
 
 #include "secrets.h"
 #include "OTAHandler.h"
@@ -11,6 +11,7 @@
 
 #define SSR_PIN 14
 #define RELAY_PIN 12
+#define SEALEVELPRESSURE_HPA (1013.25)
 
 const int SSR_relay_delay = 2000;
 
@@ -25,6 +26,11 @@ HAMqtt mqtt(client, device);
 HASwitch fanSwitch("fan_switch");
 HABinarySensor fanOnHA("fan_on");
 HASensorNumber nodeTemp("node_temp", HASensorNumber::PrecisionP2);
+
+Adafruit_BME280 bme;
+HASensorNumber bathTemp("bath_temp", HASensorNumber::PrecisionP2);
+HASensorNumber bathHum("bath_hum", HASensorNumber::PrecisionP2);
+HASensorNumber bathPres("bath_pres", HASensorNumber::PrecisionP2);
 
 void onSwitchCommand(bool state, HASwitch *sender)
 {
@@ -81,6 +87,18 @@ void setup()
     nodeTemp.setName("Node Temp");
     nodeTemp.setUnitOfMeasurement("°C");
 
+    bathTemp.setIcon("mdi:thermometer");
+    bathTemp.setName("Bath Temp");
+    bathTemp.setUnitOfMeasurement("°C");
+
+    bathHum.setIcon("mdi:water-percent");
+    bathHum.setName("Bath Humidity");
+    bathHum.setUnitOfMeasurement("%");
+
+    bathPres.setIcon("mdi:gauge");
+    bathPres.setName("Bath Pressure");
+    bathPres.setUnitOfMeasurement("%");
+
     fanOnHA.setIcon("mdi:fan");
     fanOnHA.setName("Fan status");
 
@@ -90,6 +108,14 @@ void setup()
     mqtt.begin(BROKER_ADDR, MQTT_USERNAME, MQTT_PASSWORD);
     device.enableSharedAvailability();
     device.enableLastWill();
+
+    // Підключення до BME280
+    if (!bme.begin(0x76))
+    {
+        Serial.println("BME280 not found!");
+        while (1)
+            ;
+    }
 
     // Ініціалізація OTA з паролем
     setupOTA("bath_fan", OTA_PASSWORD);
@@ -114,6 +140,14 @@ void loop()
         Serial.print(temperature);
         Serial.println(" *C");
         nodeTemp.setValue(temperature);
+
+        // Зчитування даних з BME280
+        float temperature_bme = bme.readTemperature();
+        float humidity = bme.readHumidity();
+        float pressure = bme.readPressure() / 100.0F;
+        bathTemp.setValue(temperature_bme);
+        bathHum.setValue(humidity);
+        bathPres.setValue(pressure);
 
         lastUpdateAt = millis();
     }
