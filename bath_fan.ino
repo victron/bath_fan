@@ -2,16 +2,21 @@
 #include <ESP8266WiFi.h>
 #include <ArduinoHA.h>
 #include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BME280.h>
 
 #include "secrets.h"
 #include "OTAHandler.h"
+#include "thermistor.h"
 
 #define SSR_PIN 14
 #define RELAY_PIN 12
 
 const int SSR_relay_delay = 2000;
 
-// globals for temp sensor
+// Вхідний пін для термістора
+const int THERMISTORPIN = A0;
+
 WiFiClient client;
 HADevice device;
 HAMqtt mqtt(client, device);
@@ -19,6 +24,7 @@ HAMqtt mqtt(client, device);
 // HASensorNumber currentHum("Bath humidity", HASensorNumber::PrecisionP1);
 HASwitch fanSwitch("fan_switch");
 HABinarySensor fanOnHA("fan_on");
+HASensorNumber nodeTemp("node_temp", HASensorNumber::PrecisionP2);
 
 void onSwitchCommand(bool state, HASwitch *sender)
 {
@@ -70,6 +76,14 @@ void setup()
     fanSwitch.setIcon("mdi:fan");
     fanSwitch.setName("Bath Fan");
 
+    // configure sensors
+    nodeTemp.setIcon("mdi:thermometer");
+    nodeTemp.setName("Node Temp");
+    nodeTemp.setUnitOfMeasurement("°C");
+
+    fanOnHA.setIcon("mdi:fan");
+    fanOnHA.setName("Fan status");
+
     // handle switch state
     fanSwitch.onCommand(onSwitchCommand);
 
@@ -81,6 +95,8 @@ void setup()
     setupOTA("bath_fan", OTA_PASSWORD);
 }
 
+unsigned long lastUpdateAt = 0;            // Змінна для зберігання часу останнього оновлення
+const unsigned long updateInterval = 3000; // Інтервал оновлення в мілісекундах (3000 мс = 3 секунди)
 void loop()
 {
     mqtt.loop();
@@ -89,4 +105,16 @@ void loop()
     // You can also change the state at runtime as shown below.
     // This kind of logic can be used if you want to control your switch using a button connected to the device.
     // led.setState(true); // use any state you want
+
+    // Перевіряємо, чи минув інтервал оновлення
+    if (millis() - lastUpdateAt > updateInterval)
+    {
+        float temperature = getTemperature(THERMISTORPIN);
+        Serial.print("Temperature: ");
+        Serial.print(temperature);
+        Serial.println(" *C");
+        nodeTemp.setValue(temperature);
+
+        lastUpdateAt = millis();
+    }
 }
