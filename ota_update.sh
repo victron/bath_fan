@@ -25,8 +25,8 @@ arduino-cli core install home-assistant-integration
 arduino-cli lib install "Adafruit BME280 Library"
 
 # update via OTA
-git pull origin master
-arduino-cli compile --fqbn esp8266:esp8266:nodemcuv2 ./bath_fan/bath_fan.ino --output-dir ./build
+cd bath_fan && git pull && cd ..
+arduino-cli compile --fqbn esp8266:esp8266:nodemcuv2 --build-cache-path ./build_cache --output-dir ./build ./bath_fan/bath_fan.ino
 python3 ~/.arduino15/packages/esp8266/hardware/esp8266/3.1.2/tools/espota.py --ip 192.168.156.116 --auth=OTA_password  --file ./build/bath_fan.ino.bin
 
 

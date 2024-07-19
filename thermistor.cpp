@@ -7,7 +7,7 @@
 // для nodemcu
 // використовується вбудований дільник без зовнішнього.
 // термістор підєднаний до +3.3в і напряму до входу A0
-const float SERIESRESISTOR = 10000.0;    // Додатковий резистор 100k
+const float SERIESRESISTOR = 9940.0;     // Додатковий резистор 100k
 const float THERMISTORNOMINAL = 10000.0; // Опір термістора при 25 градусах C
 const float TEMPERATURENOMINAL = 25.0;   // Температура при якій опір номінальний (25 C)
 const float ADC_MAX_VALUE = 1023.0;
@@ -27,5 +27,5 @@ float getTemperature(int thermistorPin)
     steinhart = 1.0 / steinhart;                      // Інверсія значення
     steinhart -= 273.15;                              // Перетворення в градуси Цельсія
 
-    return resistance;
+    return steinhart;
 }
