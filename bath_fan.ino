@@ -145,28 +145,29 @@ void loop()
         {
             fanSwitch.turnOn();
         }
-
-        // You can also change the state at runtime as shown below.
-        // This kind of logic can be used if you want to control your switch using a button connected to the device.
-        // led.setState(true); // use any state you want
-
-        // Перевіряємо, чи минув інтервал оновлення
-        if (millis() - lastUpdateAt > updateInterval)
-        {
-            float temperature = getTemperature(THERMISTORPIN);
-            Serial.print("Temperature: ");
-            Serial.print(temperature);
-            Serial.println(" *C");
-            nodeTemp.setValue(temperature);
-
-            // Зчитування даних з BME280
-            float temperature_bme = bme.readTemperature();
-            float humidity = bme.readHumidity();
-            float pressure = bme.readPressure() / 100.0F;
-            bathTemp.setValue(temperature_bme);
-            bathHum.setValue(humidity);
-            bathPres.setValue(pressure);
-
-            lastUpdateAt = millis();
-        }
     }
+
+    // You can also change the state at runtime as shown below.
+    // This kind of logic can be used if you want to control your switch using a button connected to the device.
+    // led.setState(true); // use any state you want
+
+    // Перевіряємо, чи минув інтервал оновлення
+    if (millis() - lastUpdateAt > updateInterval)
+    {
+        float temperature = getTemperature(THERMISTORPIN);
+        Serial.print("Temperature: ");
+        Serial.print(temperature);
+        Serial.println(" *C");
+        nodeTemp.setValue(temperature);
+
+        // Зчитування даних з BME280
+        float temperature_bme = bme.readTemperature();
+        float humidity = bme.readHumidity();
+        float pressure = bme.readPressure() / 100.0F;
+        bathTemp.setValue(temperature_bme);
+        bathHum.setValue(humidity);
+        bathPres.setValue(pressure);
+
+        lastUpdateAt = millis();
+    }
+}
