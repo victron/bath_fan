@@ -85,7 +85,7 @@ void setup()
     digitalWrite(RELAY_PIN, LOW);
 
     // set icon (optional)
-    // fanSwitch.setIcon("mdi:fan");
+    fanSwitch.setIcon("mdi:fan");
     fanSwitch.setName("Bath Fan");
 
     // configure sensors
