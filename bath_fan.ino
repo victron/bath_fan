@@ -8,9 +8,11 @@
 #include "secrets.h"
 #include "OTAHandler.h"
 #include "thermistor.h"
+#include "button.h"
 
 #define SSR_PIN 14
 #define RELAY_PIN 12
+#define BUTTON_PIN 13
 #define SEALEVELPRESSURE_HPA (1013.25)
 
 const int SSR_relay_delay = 2000;
@@ -31,6 +33,9 @@ Adafruit_BME280 bme;
 HASensorNumber bathTemp("bath_temp", HASensorNumber::PrecisionP2);
 HASensorNumber bathHum("bath_hum", HASensorNumber::PrecisionP2);
 HASensorNumber bathPres("bath_pres", HASensorNumber::PrecisionP2);
+
+// Створюємо об'єкт кнопки
+button btn(BUTTON_PIN);
 
 void onSwitchCommand(bool state, HASwitch *sender)
 {
@@ -97,7 +102,7 @@ void setup()
 
     bathPres.setIcon("mdi:gauge");
     bathPres.setName("Bath Pressure");
-    bathPres.setUnitOfMeasurement("%");
+    bathPres.setUnitOfMeasurement("hPa");
 
     fanOnHA.setIcon("mdi:fan");
     fanOnHA.setName("Fan status");
@@ -128,27 +133,40 @@ void loop()
     mqtt.loop();
     ArduinoOTA.handle();
 
-    // You can also change the state at runtime as shown below.
-    // This kind of logic can be used if you want to control your switch using a button connected to the device.
-    // led.setState(true); // use any state you want
-
-    // Перевіряємо, чи минув інтервал оновлення
-    if (millis() - lastUpdateAt > updateInterval)
+    // Перевірка натискання кнопки
+    if (btn.click())
     {
-        float temperature = getTemperature(THERMISTORPIN);
-        Serial.print("Temperature: ");
-        Serial.print(temperature);
-        Serial.println(" *C");
-        nodeTemp.setValue(temperature);
+        // Зміна стану перемикача
+        if (fanSwitch.getCurrentState())
+        {
+            fanSwitch.turnOff();
+        }
+        else
+        {
+            fanSwitch.turnOn();
+        }
 
-        // Зчитування даних з BME280
-        float temperature_bme = bme.readTemperature();
-        float humidity = bme.readHumidity();
-        float pressure = bme.readPressure() / 100.0F;
-        bathTemp.setValue(temperature_bme);
-        bathHum.setValue(humidity);
-        bathPres.setValue(pressure);
+        // You can also change the state at runtime as shown below.
+        // This kind of logic can be used if you want to control your switch using a button connected to the device.
+        // led.setState(true); // use any state you want
 
-        lastUpdateAt = millis();
+        // Перевіряємо, чи минув інтервал оновлення
+        if (millis() - lastUpdateAt > updateInterval)
+        {
+            float temperature = getTemperature(THERMISTORPIN);
+            Serial.print("Temperature: ");
+            Serial.print(temperature);
+            Serial.println(" *C");
+            nodeTemp.setValue(temperature);
+
+            // Зчитування даних з BME280
+            float temperature_bme = bme.readTemperature();
+            float humidity = bme.readHumidity();
+            float pressure = bme.readPressure() / 100.0F;
+            bathTemp.setValue(temperature_bme);
+            bathHum.setValue(humidity);
+            bathPres.setValue(pressure);
+
+            lastUpdateAt = millis();
+        }
     }
-}
