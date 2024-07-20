@@ -23,8 +23,6 @@ const int THERMISTORPIN = A0;
 WiFiClient client;
 HADevice device;
 HAMqtt mqtt(client, device);
-// TODO: humidity
-// HASensorNumber currentHum("Bath humidity", HASensorNumber::PrecisionP1);
 HASwitch fanSwitch("fan_switch");
 // HABinarySensor fanOnHA("fan_on");
 HASensorNumber nodeTemp("node_temp", HASensorNumber::PrecisionP2);
@@ -46,7 +44,6 @@ void onSwitchCommand(bool state, HASwitch *sender)
     digitalWrite(SSR_PIN, LOW);
 
     sender->setState(state); // report state back to the Home Assistant
-    sender->setIcon("mdi:fan-off");
 }
 
 void setup()
