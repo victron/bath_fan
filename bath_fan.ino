@@ -139,11 +139,11 @@ void loop()
         // Зміна стану перемикача
         if (fanSwitch.getCurrentState())
         {
-            fanSwitch.turnOff();
+            onSwitchCommand(false, &fanSwitch);
         }
         else
         {
-            fanSwitch.turnOn();
+            onSwitchCommand(true, &fanSwitch);
         }
     }
 
