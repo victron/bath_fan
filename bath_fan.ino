@@ -137,14 +137,7 @@ void loop()
     if (btn.click())
     {
         // Зміна стану перемикача
-        if (fanSwitch.getCurrentState())
-        {
-            onSwitchCommand(false, &fanSwitch);
-        }
-        else
-        {
-            onSwitchCommand(true, &fanSwitch);
-        }
+        onSwitchCommand(!fanSwitch.getCurrentState(), &fanSwitch);
     }
 
     // You can also change the state at runtime as shown below.
