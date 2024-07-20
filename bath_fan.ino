@@ -46,7 +46,7 @@ void onSwitchCommand(bool state, HASwitch *sender)
     digitalWrite(SSR_PIN, LOW);
 
     sender->setState(state); // report state back to the Home Assistant
-    sender->setIcon("fan-off");
+    sender->setIcon("mdi:fan-off");
 }
 
 void setup()
