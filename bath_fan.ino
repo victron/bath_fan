@@ -26,7 +26,7 @@ HAMqtt mqtt(client, device);
 // TODO: humidity
 // HASensorNumber currentHum("Bath humidity", HASensorNumber::PrecisionP1);
 HASwitch fanSwitch("fan_switch");
-HABinarySensor fanOnHA("fan_on");
+// HABinarySensor fanOnHA("fan_on");
 HASensorNumber nodeTemp("node_temp", HASensorNumber::PrecisionP2);
 
 Adafruit_BME280 bme;
@@ -46,6 +46,7 @@ void onSwitchCommand(bool state, HASwitch *sender)
     digitalWrite(SSR_PIN, LOW);
 
     sender->setState(state); // report state back to the Home Assistant
+    sender->setIcon("fan-off");
 }
 
 void setup()
@@ -104,8 +105,8 @@ void setup()
     bathPres.setName("Bath Pressure");
     bathPres.setUnitOfMeasurement("hPa");
 
-    fanOnHA.setIcon("mdi:fan");
-    fanOnHA.setName("Fan status");
+    // fanOnHA.setIcon("mdi:fan");
+    // fanOnHA.setName("Fan status");
 
     // handle switch state
     fanSwitch.onCommand(onSwitchCommand);
