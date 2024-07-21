@@ -2,9 +2,8 @@
 #include <ESP8266WiFi.h>
 #include <ArduinoHA.h>
 #include <Wire.h>
-// #include <Adafruit_Sensor.h>
-// #include <Adafruit_BME280.h>
-#include <SparkFunBME280.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BME280.h>
 
 #include "secrets.h"
 #include "OTAHandler.h"
@@ -28,11 +27,11 @@ HASwitch fanSwitch("fan_switch");
 // HABinarySensor fanOnHA("fan_on");
 HASensorNumber nodeTemp("node_temp", HASensorNumber::PrecisionP2);
 
-// Adafruit_BME280 bme;
-BME280 bme;
+Adafruit_BME280 bme;
 HASensorNumber bathTemp("bath_temp", HASensorNumber::PrecisionP2);
 HASensorNumber bathHum("bath_hum", HASensorNumber::PrecisionP2);
 HASensorNumber bathPres("bath_pres", HASensorNumber::PrecisionP2);
+HASensorNumber wifi_rsi("WiFi Power", HASensorNumber::PrecisionP0);
 
 // Створюємо об'єкт кнопки
 button btn(BUTTON_PIN);
@@ -117,6 +116,10 @@ void setup()
     bathPres.setName("Bath Pressure");
     bathPres.setUnitOfMeasurement("hPa");
 
+    wifi_rsi.setIcon("mdi:gauge");
+    wifi_rsi.setName("WiFi rsi");
+    wifi_rsi.setUnitOfMeasurement("dBm");
+
     // fanOnHA.setIcon("mdi:fan");
     // fanOnHA.setName("Fan status");
 
@@ -127,15 +130,8 @@ void setup()
     device.enableSharedAvailability();
     device.enableLastWill();
 
-    // // Підключення до BME280
-    // if (!bme.begin(0x76))
-    // {
-    //     Serial.println("BME280 not found!");
-    //     while (1)
-    //         ;
-    // }
     // Підключення до BME280
-    if (bme.beginI2C() == false)
+    if (!bme.begin(0x76))
     {
         Serial.println("BME280 not found!");
         while (1)
@@ -148,10 +144,23 @@ void setup()
 
 unsigned long lastUpdateAt = 0;            // Змінна для зберігання часу останнього оновлення
 const unsigned long updateInterval = 3000; // Інтервал оновлення в мілісекундах (3000 мс = 3 секунди)
+unsigned int wifi_fail_counter = 0;
+const unsigned int wifi_fail_triger = 300000; // при кількості спроб реконнест
 void loop()
 {
-    mqtt.loop();
-    ArduinoOTA.handle();
+    // Перевірка WiFi з'єднання
+    if (WiFi.status() != WL_CONNECTED && wifi_fail_counter > wifi_fail_triger)
+    {
+        Serial.println("WiFi lost, trying to reconnect...");
+        setupWiFi();
+    }
+    if (WiFi.status() != WL_CONNECTED)
+    {
+        wifi_fail_counter++;
+        Serial.print("WiFi lost, counter=");
+        Serial.println(wifi_fail_counter);
+        return;
+    }
 
     // Перевірка натискання кнопки
     if (btn.click())
@@ -160,38 +169,30 @@ void loop()
         onSwitchCommand(!fanSwitch.getCurrentState(), &fanSwitch);
     }
 
-    // You can also change the state at runtime as shown below.
-    // This kind of logic can be used if you want to control your switch using a button connected to the device.
-    // led.setState(true); // use any state you want
+    mqtt.loop();
+    ArduinoOTA.handle();
 
     // Перевіряємо, чи минув інтервал оновлення
     if (millis() - lastUpdateAt > updateInterval)
     {
-        // Перевірка WiFi з'єднання
-        if (WiFi.status() != WL_CONNECTED)
-        {
-            Serial.println("WiFi з'єднання втрачено, спроба перепідключення...");
-            setupWiFi();
-        }
+        lastUpdateAt = millis();
+        // Моніторинг рівня WiFi сигналу
+        int32_t rssi = WiFi.RSSI();
+        wifi_rsi.setValue(rssi);
 
-                float temperature = getTemperature(THERMISTORPIN);
+        float temperature = getTemperature(THERMISTORPIN);
         Serial.print("Temperature: ");
         Serial.print(temperature);
         Serial.println(" *C");
         nodeTemp.setValue(temperature);
 
-        // // Зчитування даних з BME280
-        // float temperature_bme = bme.readTemperature();
-        // float humidity = bme.readHumidity();
-        // float pressure = bme.readPressure() / 100.0F;
-        float temperature_bme = bme.readTempC();
-        float humidity = bme.readFloatHumidity();
-        float pressure = bme.readFloatPressure() / 100.0F;
+        // Зчитування даних з BME280
+        float temperature_bme = bme.readTemperature();
+        float humidity = bme.readHumidity();
+        float pressure = bme.readPressure() / 100.0F;
 
         bathTemp.setValue(temperature_bme);
         bathHum.setValue(humidity);
         bathPres.setValue(pressure);
-
-        lastUpdateAt = millis();
     }
 }
