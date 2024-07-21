@@ -37,6 +37,27 @@ HASensorNumber bathPres("bath_pres", HASensorNumber::PrecisionP2);
 // Створюємо об'єкт кнопки
 button btn(BUTTON_PIN);
 
+void setupWiFi()
+{
+    delay(10);
+    Serial.println();
+    Serial.print("connecting to ");
+    Serial.println(WIFI_SSID);
+
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+    while (WiFi.status() != WL_CONNECTED)
+    {
+        delay(500);
+        Serial.print(".");
+    }
+
+    Serial.println("");
+    Serial.println("WiFi connected");
+    Serial.println("IP address: ");
+    Serial.println(WiFi.localIP());
+}
+
 void onSwitchCommand(bool state, HASwitch *sender)
 {
     digitalWrite(SSR_PIN, HIGH);
@@ -57,15 +78,7 @@ void setup()
     WiFi.macAddress(mac);
     device.setUniqueId(mac, sizeof(mac));
 
-    // connect to wifi
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    while (WiFi.status() != WL_CONNECTED)
-    {
-        Serial.print(".");
-        delay(500); // waiting for the connection
-    }
-    Serial.println();
-    Serial.println("Connected to the network:::::");
+    setupWiFi();
 
     // Логування розміру флеш-пам'яті
     uint32_t flashSize = ESP.getFlashChipRealSize();
@@ -154,7 +167,14 @@ void loop()
     // Перевіряємо, чи минув інтервал оновлення
     if (millis() - lastUpdateAt > updateInterval)
     {
-        float temperature = getTemperature(THERMISTORPIN);
+        // Перевірка WiFi з'єднання
+        if (WiFi.status() != WL_CONNECTED)
+        {
+            Serial.println("WiFi з'єднання втрачено, спроба перепідключення...");
+            setupWiFi();
+        }
+
+                float temperature = getTemperature(THERMISTORPIN);
         Serial.print("Temperature: ");
         Serial.print(temperature);
         Serial.println(" *C");
