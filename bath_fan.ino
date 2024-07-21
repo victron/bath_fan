@@ -2,8 +2,9 @@
 #include <ESP8266WiFi.h>
 #include <ArduinoHA.h>
 #include <Wire.h>
-#include <Adafruit_Sensor.h>
-#include <Adafruit_BME280.h>
+// #include <Adafruit_Sensor.h>
+// #include <Adafruit_BME280.h>
+#include <SparkFunBME280.h>
 
 #include "secrets.h"
 #include "OTAHandler.h"
@@ -13,7 +14,7 @@
 #define SSR_PIN 14
 #define RELAY_PIN 12
 #define BUTTON_PIN 13
-#define SEALEVELPRESSURE_HPA (1013.25)
+// #define SEALEVELPRESSURE_HPA (1013.25)
 
 const int SSR_relay_delay = 2000;
 
@@ -27,7 +28,8 @@ HASwitch fanSwitch("fan_switch");
 // HABinarySensor fanOnHA("fan_on");
 HASensorNumber nodeTemp("node_temp", HASensorNumber::PrecisionP2);
 
-Adafruit_BME280 bme;
+// Adafruit_BME280 bme;
+BME280 bme;
 HASensorNumber bathTemp("bath_temp", HASensorNumber::PrecisionP2);
 HASensorNumber bathHum("bath_hum", HASensorNumber::PrecisionP2);
 HASensorNumber bathPres("bath_pres", HASensorNumber::PrecisionP2);
@@ -112,8 +114,15 @@ void setup()
     device.enableSharedAvailability();
     device.enableLastWill();
 
+    // // Підключення до BME280
+    // if (!bme.begin(0x76))
+    // {
+    //     Serial.println("BME280 not found!");
+    //     while (1)
+    //         ;
+    // }
     // Підключення до BME280
-    if (!bme.begin(0x76))
+    if (bme.beginI2C() == false)
     {
         Serial.println("BME280 not found!");
         while (1)
@@ -151,10 +160,14 @@ void loop()
         Serial.println(" *C");
         nodeTemp.setValue(temperature);
 
-        // Зчитування даних з BME280
-        float temperature_bme = bme.readTemperature();
-        float humidity = bme.readHumidity();
-        float pressure = bme.readPressure() / 100.0F;
+        // // Зчитування даних з BME280
+        // float temperature_bme = bme.readTemperature();
+        // float humidity = bme.readHumidity();
+        // float pressure = bme.readPressure() / 100.0F;
+        float temperature_bme = bme.readTempC();
+        float humidity = bme.readFloatHumidity();
+        float pressure = bme.readFloatPressure() / 100.0F;
+
         bathTemp.setValue(temperature_bme);
         bathHum.setValue(humidity);
         bathPres.setValue(pressure);
