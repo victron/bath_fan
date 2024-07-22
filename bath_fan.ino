@@ -178,8 +178,6 @@ void loop()
     {
         lastUpdateAt = millis();
         // Моніторинг рівня WiFi сигналу
-        int32_t rssi = WiFi.RSSI();
-        wifi_rssi.setValue((float)0.0);
 
         float temperature = getTemperature(THERMISTORPIN);
         Serial.print("Temperature: ");
@@ -195,5 +193,8 @@ void loop()
         bathTemp.setValue(temperature_bme);
         bathHum.setValue(humidity);
         bathPres.setValue(pressure);
+
+        int32_t rssi = WiFi.RSSI();
+        wifi_rssi.setValue(pressure);
     }
 }
