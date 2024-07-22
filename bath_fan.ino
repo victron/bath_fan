@@ -10,6 +10,7 @@
 #include "thermistor.h"
 #include "button.h"
 
+#define HOSTNAME "bath_fan"
 #define SSR_PIN 14
 #define RELAY_PIN 12
 #define BUTTON_PIN 13
@@ -31,7 +32,7 @@ Adafruit_BME280 bme;
 HASensorNumber bathTemp("bath_temp", HASensorNumber::PrecisionP2);
 HASensorNumber bathHum("bath_hum", HASensorNumber::PrecisionP2);
 HASensorNumber bathPres("bath_pres", HASensorNumber::PrecisionP2);
-HASensorNumber wifi_rsi("WiFi Power", HASensorNumber::PrecisionP0);
+HASensorNumber wifi_rssi("WiFi Power", HASensorNumber::PrecisionP0);
 
 // Створюємо об'єкт кнопки
 button btn(BUTTON_PIN);
@@ -43,8 +44,8 @@ void setupWiFi()
     Serial.print("connecting to ");
     Serial.println(WIFI_SSID);
 
+    WiFi.hostname(HOSTNAME);
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-
     while (WiFi.status() != WL_CONNECTED)
     {
         delay(500);
@@ -86,7 +87,7 @@ void setup()
     Serial.println(" bytes");
 
     // set device's details (optional)
-    device.setName("bath_fan");
+    device.setName(HOSTNAME);
     device.setSoftwareVersion("1.0.0");
 
     pinMode(SSR_PIN, OUTPUT);
@@ -116,9 +117,9 @@ void setup()
     bathPres.setName("Bath Pressure");
     bathPres.setUnitOfMeasurement("hPa");
 
-    wifi_rsi.setIcon("mdi:gauge");
-    wifi_rsi.setName("WiFi rsi");
-    wifi_rsi.setUnitOfMeasurement("dBm");
+    wifi_rssi.setIcon("mdi:gauge");
+    wifi_rssi.setName("WiFi rsi");
+    wifi_rssi.setUnitOfMeasurement("dBm");
 
     // fanOnHA.setIcon("mdi:fan");
     // fanOnHA.setName("Fan status");
@@ -178,7 +179,7 @@ void loop()
         lastUpdateAt = millis();
         // Моніторинг рівня WiFi сигналу
         int32_t rssi = WiFi.RSSI();
-        wifi_rsi.setValue(rssi);
+        wifi_rssi.setValue((float)rssi);
 
         float temperature = getTemperature(THERMISTORPIN);
         Serial.print("Temperature: ");
