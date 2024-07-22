@@ -179,7 +179,7 @@ void loop()
         lastUpdateAt = millis();
         // Моніторинг рівня WiFi сигналу
         int32_t rssi = WiFi.RSSI();
-        wifi_rssi.setValue((float)rssi);
+        wifi_rssi.setValue((float)0.0);
 
         float temperature = getTemperature(THERMISTORPIN);
         Serial.print("Temperature: ");
