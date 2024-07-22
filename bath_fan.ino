@@ -32,7 +32,7 @@ Adafruit_BME280 bme;
 HASensorNumber bathTemp("bath_temp", HASensorNumber::PrecisionP2);
 HASensorNumber bathHum("bath_hum", HASensorNumber::PrecisionP2);
 HASensorNumber bathPres("bath_pres", HASensorNumber::PrecisionP2);
-HASensorNumber wifi_rssi("WiFi Power", HASensorNumber::PrecisionP0);
+HASensorNumber wifiRssi("wifiRssi", HASensorNumber::PrecisionP0);
 
 // Створюємо об'єкт кнопки
 button btn(BUTTON_PIN);
@@ -117,9 +117,9 @@ void setup()
     bathPres.setName("Bath Pressure");
     bathPres.setUnitOfMeasurement("hPa");
 
-    wifi_rssi.setIcon("mdi:gauge");
-    wifi_rssi.setName("WiFi rsi");
-    wifi_rssi.setUnitOfMeasurement("dBm");
+    wifiRssi.setIcon("mdi:wifi");
+    wifiRssi.setName("WIFI RSSI");
+    wifiRssi.setUnitOfMeasurement("dBm");
 
     // fanOnHA.setIcon("mdi:fan");
     // fanOnHA.setName("Fan status");
@@ -194,7 +194,7 @@ void loop()
         bathHum.setValue(humidity);
         bathPres.setValue(pressure);
 
-        int32_t rssi = WiFi.RSSI();
-        wifi_rssi.setValue(pressure);
+        int8_t rssi = WiFi.RSSI();
+        wifiRssi.setValue(rssi);
     }
 }
