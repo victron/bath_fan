@@ -22,9 +22,8 @@ const int SSR_relay_delay = 2000;
 const int THERMISTORPIN = A0;
 
 WiFiClient client;
-HADevice device;
-HAMqtt mqtt(client, device);
 HADevice device("bath_fan");
+HAMqtt mqtt(client, device);
 HASwitch fanSwitch("fan_switch");
 // HABinarySensor fanOnHA("fan_on");
 HASensorNumber nodeTemp("node_temp", HASensorNumber::PrecisionP2);
