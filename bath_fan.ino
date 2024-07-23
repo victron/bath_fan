@@ -33,7 +33,7 @@ HASensorNumber bathTemp("bath_temp", HASensorNumber::PrecisionP2);
 HASensorNumber bathHum("bath_hum", HASensorNumber::PrecisionP2);
 float humidity = 0.0;
 HASensorNumber bathPres("bath_pres", HASensorNumber::PrecisionP2);
-HASensorNumber wifiRssi("wifiRssi", HASensorNumber::PrecisionP0);
+HASensorNumber wifiRssi("wifiRssi2", HASensorNumber::PrecisionP0);
 
 // Створюємо об'єкт кнопки
 button btn(BUTTON_PIN);
