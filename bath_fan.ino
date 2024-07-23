@@ -72,9 +72,6 @@ void setup() {
   Serial.begin(115200);
   Serial.println("Booting...");
 
-  byte mac[WL_MAC_ADDR_LENGTH];
-  WiFi.macAddress(mac);
-
   setupWiFi();
 
   // Логування розміру флеш-пам'яті
