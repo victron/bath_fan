@@ -24,6 +24,7 @@ const int THERMISTORPIN = A0;
 WiFiClient client;
 HADevice device;
 HAMqtt mqtt(client, device);
+HADevice device("bath_fan");
 HASwitch fanSwitch("fan_switch");
 // HABinarySensor fanOnHA("fan_on");
 HASensorNumber nodeTemp("node_temp", HASensorNumber::PrecisionP2);
@@ -33,6 +34,7 @@ HASensorNumber bathTemp("bath_temp", HASensorNumber::PrecisionP2);
 HASensorNumber bathHum("bath_hum", HASensorNumber::PrecisionP2);
 float humidity = 0.0;
 HASensorNumber bathPres("bath_pres", HASensorNumber::PrecisionP2);
+// можливо потрібно мати індувідуальний id для entities
 HASensorNumber wifiRssi("wifiRssi2", HASensorNumber::PrecisionP0);
 
 // Створюємо об'єкт кнопки
@@ -73,7 +75,6 @@ void setup() {
 
   byte mac[WL_MAC_ADDR_LENGTH];
   WiFi.macAddress(mac);
-  device.setUniqueId(mac, sizeof(mac));
 
   setupWiFi();
 
