@@ -153,14 +153,14 @@ void loop() {
     return;
   }
 
+  mqtt.loop();
+  ArduinoOTA.handle();
+
   // Перевірка натискання кнопки
   if(btn.click()) {
     // Зміна стану перемикача
     onSwitchCommand(!fanSwitch.getCurrentState(), &fanSwitch);
   }
-
-  mqtt.loop();
-  ArduinoOTA.handle();
 
   // Перевіряємо, чи минув інтервал оновлення
   if(millis() - lastUpdateAt > updateInterval) {
