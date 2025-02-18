@@ -45,3 +45,9 @@ cd ~/ota_update_pio/Room_fan/
 
 pio run -e ota --target upload
 ```
+
+## Ref:
+check ip
+```
+sudo cat /var/lib/NetworkManager/dnsmasq-wlp3s0.leases
+```
